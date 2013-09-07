@@ -111,4 +111,36 @@ class CategoryTreeBehavior extends TreeBehavior
         return $this->getOwner()->has_children == 0;
     }
 
+    public function getCacheKey() {
+        return 'TreeBehavior.Node.'.$this->getOwner()->getId();
+    }
+
+    /**
+     * Cписок идентификаторов подкатегорий
+     * @return array
+     */
+    public function getFlatternList(){
+        $list = $this->flattern();
+        $list[] = $this->getOwner()->getId();
+        return $list;
+    }
+
+    /*
+     * Кешированный список идентификаторов подкатегорий
+     * @param $cacheSettings настройки кеширования
+     */
+    public function getCachedFlatternList($cacheSettings){
+        $cacheKey = $this->getCacheKey();
+        $cache = Yii::app()->cache;
+        if (!$data = $cache->get($cacheKey)) {
+            $data = $this->getFlatternList();
+            $cache->set($cacheKey,$data,
+                (empty($cacheSettings['duration']) ? null : $cacheSettings['duration']),
+                (empty($cacheSettings['dependency']) ? null : $cacheSettings['dependency'])
+            );
+        }
+        return $data;
+    }
+
+
 }

@@ -55,11 +55,11 @@ class TreeBehavior extends CActiveRecordBehavior
         $node = $this->getOwner();
 
         if ($id) {
-            $criteria->addCondition('parent_id=:id');
+            $criteria->addCondition($this->parentIdAttribute.'=:id');
             $criteria->order = $this->orderAttribute;
             $criteria->params = array(':id'=>$id);
         } else {
-            $criteria->addCondition('parent_id = 0');
+            $criteria->addCondition($this->parentIdAttribute.'=0');
         }
 
         return $criteria;
@@ -102,13 +102,18 @@ class TreeBehavior extends CActiveRecordBehavior
     public function walkTree($depth = 4,$current_depth = 0) {
         $node = $this->getOwner();
         // глубже, чем надо не лезем
-        if ($current_depth > $depth) return;
-        else $current_depth++;
+        if ($current_depth > $depth)
+            return;
+        else
+            $current_depth++;
+
         // завершили обход?
         if ($this->criteria)
             $node->getDbCriteria()->mergeWith($this->criteria);
+
         $children = $node->findAll($this->getNodeCriteria($node->{$this->idAttribute}));
-        if (!$children) return;
+        if (!$children)
+            return;
 
         $items = array();
         // продолжаем обход
@@ -118,5 +123,4 @@ class TreeBehavior extends CActiveRecordBehavior
         }
         return $items;
     }
-
 }
