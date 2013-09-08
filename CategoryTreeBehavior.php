@@ -132,6 +132,7 @@ class CategoryTreeBehavior extends TreeBehavior
     public function getCachedFlatternList($cacheSettings){
         $cacheKey = $this->getCacheKey();
         $cache = Yii::app()->cache;
+        $cache->delete($cacheKey);
         if (!$data = $cache->get($cacheKey)) {
             $data = $this->getFlatternList();
             $cache->set($cacheKey,$data,

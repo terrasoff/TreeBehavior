@@ -68,18 +68,20 @@ class TreeBehavior extends CActiveRecordBehavior
     /**
      * Получаем идентификаторы узлов из вложенного дерева узлов
      */
-    public function flattern($items = null, $list = array()) {
+    public function flattern($items = null, &$list = array()) {
         // дочерние узлы
         $items = $items
             ? $items
             : $this->getTree();
+        
 
         foreach ($items as $i=>$item) {
             $list[] = (int)$item[$this->idAttribute];
-            if (!empty($item['children'])) {
+            if (is_array($item['children'])) {
                 $this->flattern($item['children'],$list);
             }
         }
+        
         return $list;
     }
 
@@ -87,7 +89,7 @@ class TreeBehavior extends CActiveRecordBehavior
      * Обходим дерево с заданной глубиной от определенного корня
      * @param int $depth глубина
      * @param null $root корень
-     * @return string HTML
+     * @return array
      */
     public function getTree($depth = 4,$mode = 'json') {
         return (array)$this->walkTree($depth);
@@ -97,15 +99,12 @@ class TreeBehavior extends CActiveRecordBehavior
      * Рекурсивный обход дерева с заданной глубиной по текущей глубине
      * @param int $depth глубина
      * @param null $current_depth текущая глубина
-     * @return string HTML
+     * @return array
      */
     public function walkTree($depth = 4,$current_depth = 0) {
         $node = $this->getOwner();
         // глубже, чем надо не лезем
-        if ($current_depth > $depth)
-            return;
-        else
-            $current_depth++;
+        if ($current_depth++ > $depth) return;
 
         // завершили обход?
         if ($this->criteria)
