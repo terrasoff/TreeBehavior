@@ -5,7 +5,7 @@
  * @desc категория в виде дерева
  */
 
-require_once dirname(__FILE__).'/TreeBehavior.php';
+require_once dirname(__FILE__) . '/TreeBehavior.php';
 
 class CategoryTreeBehavior extends TreeBehavior
 {
@@ -132,8 +132,9 @@ class CategoryTreeBehavior extends TreeBehavior
     public function getCachedFlatternList($cacheSettings){
         $cacheKey = $this->getCacheKey();
         $cache = Yii::app()->cache;
-        $cache->delete($cacheKey);
-        if (!$data = $cache->get($cacheKey)) {
+        $data = $cache->get($cacheKey);
+        
+        if (!$data) {
             $data = $this->getFlatternList();
             $cache->set($cacheKey,$data,
                 (empty($cacheSettings['duration']) ? null : $cacheSettings['duration']),
@@ -142,6 +143,5 @@ class CategoryTreeBehavior extends TreeBehavior
         }
         return $data;
     }
-
 
 }

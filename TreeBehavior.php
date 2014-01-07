@@ -20,22 +20,26 @@ class TreeBehavior extends CActiveRecordBehavior
     public function getPath() {
         // пока путь не определены
         $path = array();
+
         // выбранная категория
-        $node = $this->getOwner();
-        $parent_id = (int)$node->{$this->parentIdAttribute};
-        if ($parent_id) {
-            while ($parent_id) {
-                // запоминаем родителя
-                $path[] = $node;
-                // очерденой родитель
-                $node = Category::model()->findByPk($parent_id);
-                if (!$node)
-                    throw new TException('Не удалось найти путь до заданной категории');
-                $parent_id = (int)$node->{$this->parentIdAttribute};
+        if ($node = $this->getOwner())
+        {
+            // первый элемент
+            $path[] = $node;
+            // остальные элементы
+            $parent_id = (int)$node->{$this->parentIdAttribute};
+            if ($parent_id) {
+                while ($parent_id) {
+                    // очерденой родитель
+                    $node = Category::model()->findByPk($parent_id);
+                    $path[] = $node;
+                    if (!$node)
+                        throw new TException('Не удалось найти путь до заданной категории');
+                    $parent_id = (int)$node->{$this->parentIdAttribute};
+                }
             }
-            if ($node && !$node->{$this->parentIdAttribute})
-                $path[] = $node;
         }
+
         return $path;
     }
 
@@ -73,7 +77,6 @@ class TreeBehavior extends CActiveRecordBehavior
         $items = $items
             ? $items
             : $this->getTree();
-        
 
         foreach ($items as $i=>$item) {
             $list[] = (int)$item[$this->idAttribute];
@@ -91,7 +94,7 @@ class TreeBehavior extends CActiveRecordBehavior
      * @param null $root корень
      * @return array
      */
-    public function getTree($depth = 4,$mode = 'json') {
+    public function getTree($depth = 4) {
         return (array)$this->walkTree($depth);
     }
 
